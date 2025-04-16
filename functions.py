@@ -133,7 +133,7 @@ def run_ga(num_measures=NUM_MEASURES):
         else:
             mutation_rate = MUTATION_RATE
         MUTATION_RATE = mutation_rate
-        print(f"Generation {gen+1}: Best Fitness = {best_fit}")
+        # print(f"Generation {gen+1}: Best Fitness = {best_fit}")
     return best_individual
 
 def generate_adsr_envelope(duration, sample_rate=SAMPLE_RATE):

@@ -1,8 +1,6 @@
 import streamlit as st
 import functions
-import numpy as np
 import random
-import os
 import base64
 
 st.title("Lo-Fi Music Generator")
