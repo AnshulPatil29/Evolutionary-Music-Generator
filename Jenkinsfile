@@ -1,4 +1,4 @@
-// --- START OF FILE Jenkinsfile.txt --- // Fixed Version //
+// --- START OF FILE Jenkinsfile.txt --- // Final Version //
 
 pipeline {
     agent any
@@ -7,37 +7,37 @@ pipeline {
     }
     environment {
         IMAGE_NAME = "evolutionary-music-generator"
-        CONTAINER_NAME = "music-generator-container"
+        CONTAINER_NAME = "music-generator-container" // The fixed name for the container
     }
     stages {
         stage('Checkout') {
             steps {
-                // Use the default checkout provided by the pipeline implicitly,
-                // or keep this explicit one if needed for specific reasons.
-                // Note: The log shows checkout happens twice, once implicitly and once here.
-                // Consider removing this stage if the implicit checkout is sufficient.
+                // This explicit checkout might be redundant if the default SCM checkout is sufficient.
+                // Check your job configuration. If Jenkins checks out automatically, you might remove this stage.
                 git url: 'https://github.com/AnshulPatil29/Evolutionary-Music-Generator.git', branch: 'main'
             }
         }
         stage('Build Docker Image') {
+            // Builds a new image tagged with the unique build number
             steps {
                 script {
-                    // Use the Docker Pipeline plugin syntax for building
+                    echo "Building Docker image: ${IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    // Using Docker Pipeline plugin syntax (preferred if available)
                     docker.build("${IMAGE_NAME}:${env.BUILD_NUMBER}")
-                    // Alternatively, use bat if Docker Pipeline plugin is not configured/preferred:
+                    // OR using shell/bat command:
                     // bat "docker build -t ${IMAGE_NAME}:${env.BUILD_NUMBER} ."
                 }
             }
         }
-        // --- CORRECTED STAGE ---
-        stage('Clean Up Existing Container') { // Renamed stage for clarity
+        stage('Clean Up Existing Container') {
+            // Ensures any container with the target name is removed BEFORE trying to create a new one
             steps {
                 script {
-                    // Force remove the container by name, ignoring errors if it doesn't exist.
-                    // The 'exit /B 0' ensures this step succeeds regardless.
+                    echo "Attempting to remove any existing container named '${CONTAINER_NAME}'..."
+                    // Force remove the container by name.
+                    // exit /B 0 ensures this step passes even if the container didn't exist.
                     bat '''
                         @echo off
-                        echo Attempting to remove container named ${CONTAINER_NAME}...
                         docker rm -f ${CONTAINER_NAME}
                         echo Container removal attempt finished.
                         exit /B 0
@@ -45,11 +45,11 @@ pipeline {
                 }
             }
         }
-        // --- END OF CORRECTION ---
         stage('Run Docker Container') {
+            // Runs a new container using the newly built image and the cleaned-up container name
             steps {
                 script {
-                    // Run the new container, mapping container port 8501 to host port 8501.
+                    echo "Running new container '${CONTAINER_NAME}' from image ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                     bat "docker run -d --name ${CONTAINER_NAME} -p 8501:8501 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
@@ -58,18 +58,18 @@ pipeline {
     post {
         always {
             echo 'Pipeline execution completed.'
-            // Optional: Add cleanup for old images if desired
+            // Optional: Clean up dangling Docker images to save disk space
             // script {
-            //     bat "docker image prune -f"
+            //    echo "Pruning unused Docker images..."
+            //    bat "docker image prune -f"
             // }
         }
-        // Add failure/success steps if needed
-        // success {
-        //     echo 'Pipeline finished successfully.'
-        // }
-        // failure {
-        //     echo 'Pipeline failed.'
-        // }
+        success {
+            echo "Pipeline finished successfully for build ${env.BUILD_NUMBER}."
+        }
+        failure {
+            echo "Pipeline failed on build ${env.BUILD_NUMBER}."
+        }
     }
 }
 // --- END OF FILE Jenkinsfile.txt ---
