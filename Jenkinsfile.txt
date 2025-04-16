@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    triggers {
+        pollSCM('H/5 * * * *') // Polls the repository every 5 minutes
+    }
     environment {
         IMAGE_NAME = "evolutionary-music-generator"
         CONTAINER_NAME = "music-generator-container"
