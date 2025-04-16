@@ -1,13 +1,15 @@
-# Dockerfile (Updated)
+# Dockerfile (Updated Again)
 FROM python:3.9-slim
 
 # Install system dependencies:
-# - libportaudio2: Runtime library for PortAudio (needed by sounddevice/pyaudio)
-# - portaudio19-dev: Development headers for PortAudio (needed to *compile* pyaudio)
-# - gcc: The C compiler (needed to *compile* pyaudio)
-# - pkg-config: Helper tool often used during compilation
+# - gcc: C Compiler
+# - libc6-dev: C Standard Library development headers (includes limits.h, etc.) <--- ADDED
+# - libportaudio2: Runtime library for PortAudio
+# - portaudio19-dev: Development headers for PortAudio
+# - pkg-config: Helper tool for compilation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    libc6-dev \
     libportaudio2 \
     portaudio19-dev \
     pkg-config \
@@ -27,10 +29,6 @@ COPY . .
 
 # Expose the port Streamlit will run on
 EXPOSE 8501
-
-# Set environment variables (optional if specified in CMD, but can be good practice)
-# ENV STREAMLIT_SERVER_PORT=8501
-# ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
 
 # Run the Streamlit app when the container launches
 # Explicitly setting port and address in CMD is robust
