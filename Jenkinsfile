@@ -1,7 +1,7 @@
 pipeline {
     agent any
     triggers {
-        pollSCM('H/5 * * * *') // Poll every 5 minutes
+        pollSCM('H/5 * * * *') // Poll the repository every 5 minutes
     }
     environment {
         IMAGE_NAME = "evolutionary-music-generator"
@@ -20,11 +20,24 @@ pipeline {
                 }
             }
         }
+        stage('Clean Up Containers on Port 8501') {
+            steps {
+                script {
+                    // This Windows batch block will loop through any container using port 8501
+                    bat '''
+                        @echo off
+                        for /F "tokens=*" %%i in ('docker ps --filter "publish=8501" -q') do (
+                            echo Removing container %%i which is using port 8501...
+                            docker rm -f %%i
+                        )
+                    '''
+                }
+            }
+        }
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Use bat for Windows commands instead of sh
-                    bat "docker rm -f ${CONTAINER_NAME} || echo No existing container to remove"
+                    // Run the new container, mapping port 8501 from container to host
                     bat "docker run -d --name ${CONTAINER_NAME} -p 8501:8501 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
