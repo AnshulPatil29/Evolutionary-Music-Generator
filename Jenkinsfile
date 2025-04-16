@@ -23,13 +23,15 @@ pipeline {
         stage('Clean Up Containers on Port 8501') {
             steps {
                 script {
-                    // This Windows batch block will loop through any container using port 8501
+                    // This bat script will loop through any container using port 8501.
+                    // It forces an exit code 0 even if no matching container is found.
                     bat '''
                         @echo off
                         for /F "tokens=*" %%i in ('docker ps --filter "publish=8501" -q') do (
                             echo Removing container %%i which is using port 8501...
                             docker rm -f %%i
                         )
+                        exit /B 0
                     '''
                 }
             }
@@ -37,7 +39,7 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the new container, mapping port 8501 from container to host
+                    // Run the new container, mapping container port 8501 to host port 8501.
                     bat "docker run -d --name ${CONTAINER_NAME} -p 8501:8501 ${IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
