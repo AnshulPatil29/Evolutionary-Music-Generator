@@ -37,7 +37,7 @@ if st.button("Generate Music"):
                                               randomness=True,
                                               num_measures=num_measures)
     st.success("Music Generated!")
-    cat_source = random.choice(["app/dancing_cat.gif",'app/chill_cat.gif'])
+    cat_source = random.choice(["gifs/dancing_cat.gif",'gifs/chill_cat.gif'])
     st.image(cat_source, use_column_width=True)
     wav_data = functions.wav_bytes(audio, sr)
     audio_base64 = base64.b64encode(wav_data).decode()
