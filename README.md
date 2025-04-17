@@ -51,6 +51,9 @@ Generate unique Lo-Fi tracks with effects using an evolutionary algorithm, contr
 3.  Click "Generate Music".
 4.  Listen using the built-in player and download the WAV file.
 
+## UI
+![UI image](./images/localhost.png)
+
 ## CI/CD
 
 The included `Jenkinsfile` defines an automated pipeline that:
